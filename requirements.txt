@@ -1,0 +1,9 @@
+# Python 3.10+ (cohere SDK requirement)
+cohere==7.2.0
+rank-bm25==0.2.2
+numpy==2.5.4
+pandas==3.0.6
+pyarrow==26.0.0
+pyyaml==6.0.3
+matplotlib==3.11.2
+pytest==9.1.1
