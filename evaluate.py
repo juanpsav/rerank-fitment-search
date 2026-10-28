@@ -93,7 +93,7 @@ def chart(table, path):
     for y, n in enumerate(names):
         ax.text(table[n]["ndcg_hi"] + 0.012, y, f"{table[n]['ndcg']:.3f}", va="center", fontsize=9, color=ink)
     ax.set_xlim(0, min(1.0, max(table[n]["ndcg_hi"] for n in names) + 0.1))
-    ax.set_xlabel("nDCG@10 (ESCI fitment queries, 95% bootstrap CI)", color=muted, fontsize=9)
+    ax.set_xlabel("Search quality score (0 to 1, higher is better). Thin lines: likely range", color=muted, fontsize=9)
     ax.tick_params(colors=muted, labelsize=9, length=0)
     for s in ax.spines.values():
         s.set_visible(False)

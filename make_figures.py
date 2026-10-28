@@ -12,8 +12,8 @@ import config as C  # noqa: E402
 
 INK, MUTED, GRID, SURFACE = "#0b0b0b", "#52514e", "#e6e5e0", "#fcfcfb"
 BLUE, ORANGE, GRAY = "#2a78d6", "#eb6834", "#a3a29c"
-LABELS = {"bm25": "Keyword (BM25)", "embed": "Embed", "hybrid": "Hybrid",
-          "hybrid+rerank-v4.0-fast": "Hybrid + Rerank fast", "hybrid+rerank-v4.0-pro": "Hybrid + Rerank pro"}
+LABELS = {"bm25": "Keyword search", "embed": "Embed", "hybrid": "Keyword + Embed",
+          "hybrid+rerank-v4.0-fast": "+ Rerank fast", "hybrid+rerank-v4.0-pro": "+ Rerank pro"}
 
 
 def axes(figsize):
@@ -63,8 +63,8 @@ def quality_vs_latency(table, lat):
                     textcoords="offset points", fontsize=9, color=INK)
     ax.set_xlim(0, max(ms.values()) * 1.45)
     ax.set_ylim(0.54, 0.72)
-    ax.set_xlabel("Approx. median latency per query, ms (sum of step medians, from a laptop)", color=MUTED, fontsize=9)
-    ax.set_ylabel("nDCG@10", color=MUTED, fontsize=9)
+    ax.set_xlabel("Typical time per search, in milliseconds (1,000 ms = 1 second)", color=MUTED, fontsize=9)
+    ax.set_ylabel("Search quality score", color=MUTED, fontsize=9)
     ax.grid(True, color=GRID, linewidth=0.8)
     save(fig, "quality_vs_latency.png")
 
@@ -81,8 +81,8 @@ def per_query_delta(runs_dir, qrels, esci_qids):
            color=[BLUE if v > 0.001 else ORANGE if v < -0.001 else GRAY for v in d])
     ax.axhline(0, color=MUTED, linewidth=0.8)
     ax.set_xticks([])
-    ax.set_ylabel("Δ nDCG@10 per query", color=MUTED, fontsize=9)
-    ax.set_xlabel(f"{len(d)} queries, sorted.  Better: {wins}   Worse: {losses}   Same: {len(d) - wins - losses}",
+    ax.set_ylabel("Change in quality score", color=MUTED, fontsize=9)
+    ax.set_xlabel(f"Each bar is one of {len(d)} searches.  Better with Rerank: {wins}   Worse: {losses}   No change: {len(d) - wins - losses}",
                   color=MUTED, fontsize=9)
     ax.yaxis.grid(True, color=GRID, linewidth=0.8)
     save(fig, "per_query_delta.png")
@@ -92,9 +92,9 @@ def main():
     m = json.loads((C.RESULTS / "metrics.json").read_text())
     esci = m["slices"]["esci"]["table"]
     hbars({k: esci[k] for k in ["bm25", "embed", "hybrid"]}, "recall100", "recall_ceiling.png",
-          "Recall@100: share of exact matches that reach the reranker", lambda v: f"{v:.0%}", 1.0, pct=True)
+          "Share of correct products found in the first 100 results (what Rerank gets to work with)", lambda v: f"{v:.0%}", 1.0, pct=True)
     hbars(m["slices"]["own"]["table"], "top10_hit", "store_top10.png",
-          "Share of 25 fitment queries where the right product reached the top 10", lambda v: f"{v:.0%}", 1.1, pct=True)
+          "Share of 25 searches where the right product reached the first page (top 10)", lambda v: f"{v:.0%}", 1.1, pct=True)
     quality_vs_latency(esci, m["meta"]["latency_ms"])
     qrels = json.loads((C.DATA / "qrels.json").read_text())
     qids = [json.loads(line)["qid"] for line in open(C.DATA / "queries.jsonl") if '"esci"' in line]
